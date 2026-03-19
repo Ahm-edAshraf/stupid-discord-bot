@@ -16,9 +16,21 @@ class Settings:
 
         # Required
         try:
-            self.token: str = os.environ["DISCORD_TOKEN"]
+            # `.env` values can accidentally include whitespace; strip to avoid invalid tokens.
+            self.token = os.environ["DISCORD_TOKEN"].strip()
         except KeyError as exc:
             raise RuntimeError("DISCORD_TOKEN environment variable is required") from exc
+
+        if not self.token:
+            raise RuntimeError("DISCORD_TOKEN is empty after trimming. Check your .env formatting.")
+
+        # Discord bot tokens are typically much longer than 32 chars.
+        # If it's short, it's very likely the wrong value (OAuth token, client secret, etc).
+        if len(self.token) < 40:
+            raise RuntimeError(
+                "DISCORD_TOKEN looks too short (len < 40). Did you paste the Bot token from "
+                "Discord Developer Portal (not OAuth token / client secret)?"
+            )
 
         # Basic bot configuration
         self.guild_id: int | None = (
