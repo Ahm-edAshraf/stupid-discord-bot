@@ -19,3 +19,9 @@ def setup_logging() -> None:
     root.setLevel(logging.INFO)
     root.addHandler(handler)
 
+    # This template uses application commands (slash commands) only.
+    # discord.py's commands extension can still emit a warning about the
+    # privileged `message_content` intent even though prefix commands aren't
+    # used. Hide that noise but keep real errors visible.
+    logging.getLogger("discord.ext.commands.bot").setLevel(logging.ERROR)
+

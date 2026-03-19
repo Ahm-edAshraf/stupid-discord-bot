@@ -37,9 +37,24 @@ class Settings:
             int(gid) if (gid := os.getenv("DISCORD_GUILD_ID")) else None
         )
 
-        # Enable only what we need. Slash commands don't require message content.
+        # Enable only what we need.
+        # Slash commands don't require message content (privileged), but the
+        # commands extension may still expect the `messages` intent.
         self.intents: discord.Intents = discord.Intents.default()
         self.intents.guilds = True
+        self.intents.messages = True
+
+        # If enabled, the bot will copy/sync commands to every guild it is in
+        # on startup (after `on_ready`).
+        #
+        # This is the fastest way to get updates across multiple servers during
+        # development, avoiding global command propagation delays.
+        self.sync_all_guilds: bool = os.getenv("DISCORD_SYNC_ALL_GUILDS", "").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "y",
+        }
 
 
 settings = Settings()

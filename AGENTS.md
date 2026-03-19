@@ -76,8 +76,18 @@ If a new feature does not fit cleanly into an existing cog or service, prefer **
   - Define commands with `@tree.command(...)` or within cogs using `app_commands.Command` and keep them small, delegating work to services.
   - Implement `setup_hook` on the bot/client subclass to perform initial `tree.sync(...)` calls after login but before connecting to the gateway.
   - During development, sync commands to a **single test guild** with `await tree.sync(guild=discord.Object(GUILD_ID))` for near‑instant updates.
-  - For production, use **global commands** (no guild argument) and understand they may take up to an hour to propagate.
+  - Prefer a “test guild first” workflow:
+    - Set `DISCORD_GUILD_ID` so the bot syncs/copies updated commands to that guild for fast iteration.
+    - After you confirm everything works, remove or unset `DISCORD_GUILD_ID` and restart to sync global commands (so other guilds get updates after propagation).
+  - If you want “sync everywhere fast” during development, you can also enable:
+    - `DISCORD_SYNC_ALL_GUILDS=1` to copy/sync slash commands to every guild the bot is currently in on startup.
+    - Note: this requires the bot to be (re-)added to at least one server; if you’re not in any guilds yet, there’s nothing to sync.
+  - Understand the impact of command scope:
+    - **Global commands** (no guild restriction) update all guilds, but propagation can take up to ~1 hour.
+    - **Guild-scoped commands** only exist in the specified guild(s) and require syncing per guild if you add new commands.
   - Ensure the bot is invited with both `bot` and `applications.commands` scopes, or commands will not appear.
+  - Kicking/re-adding the bot to servers is generally **not required** for command updates; use `tree.sync(...)` instead.
+  - Re-invite is only needed if you changed OAuth scopes/permissions (or privileged intents) and the install no longer matches what discord.py expects.
 - **Cogs & extensions**
   - Each cog should cover a **single responsibility or tightly related feature set**.
   - Use `async def setup(bot): await bot.add_cog(...)` in each extension module.

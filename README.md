@@ -8,6 +8,7 @@ Minimal, modular **Discord bot template** built with `discord.py` using **slash 
 - `/ping` slash command (ephemeral reply)
 - Safe command syncing using `setup_hook`:
   - Guild sync for fast iteration (when `DISCORD_GUILD_ID` is set)
+  - Sync to all guilds for fast development (when `DISCORD_SYNC_ALL_GUILDS=1`)
   - Global sync otherwise
 - Secrets via root `.env` + `.env.example`
 
@@ -31,6 +32,7 @@ Minimal, modular **Discord bot template** built with `discord.py` using **slash 
    - Copy `E:\disc-bot\.env.example` to `E:\disc-bot\.env`
    - Fill in `DISCORD_TOKEN`
    - (Optional) set `DISCORD_GUILD_ID` so slash commands sync quickly while developing
+   - (Optional) set `DISCORD_SYNC_ALL_GUILDS=1` to sync/copy slash commands to every guild the bot is currently in
 
 3. Invite the bot with the right scopes:
 
@@ -55,8 +57,9 @@ The bot will:
 
 ### Sync behavior (important)
 
-- If `DISCORD_GUILD_ID` is set: commands sync to that guild and appear quickly.
-- If `DISCORD_GUILD_ID` is not set: commands sync globally and may take up to ~1 hour to propagate.
+- If `DISCORD_SYNC_ALL_GUILDS=1`: the bot copies/syncs slash commands to **every guild it is in** on startup (fastest for “sync everywhere” during dev).
+- Else if `DISCORD_GUILD_ID` is set: commands sync to that guild and appear quickly.
+- Else: commands sync globally and may take up to ~1 hour to propagate.
 
 ## Project structure
 
@@ -122,6 +125,7 @@ Then ensure the extension is loaded via `DiscBot.EXTENSIONS`.
 - Keep slash commands defined in extensions/cogs that are loaded during `setup_hook`.
 - Don’t rely on message commands for new features; prefer slash commands going forward.
 - Make sure the bot has the `applications.commands` scope when invited.
+- If you’re using guild/global syncing and don’t see updates immediately, restart the bot so it runs `sync()` again (kicking/re-inviting is usually unnecessary).
 
 ## Notes / next steps
 
